@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Jibble.Tests/Jibble.Tests.csproj" Id="9c5f698d-bfc5-437c-99b8-18096107b09c" />
+  <Project Path="Jibble/Jibble.csproj" />
+</Solution>
