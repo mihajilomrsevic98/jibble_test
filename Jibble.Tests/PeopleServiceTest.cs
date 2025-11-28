@@ -6,7 +6,6 @@
 
     public class PeopleServiceTest
     {
-        // Simplified JSON response for testing a successful collection fetch
         private const string ListSuccessJson = @"{
         ""@odata.context"": ""http://test.local/$metadata#People"",
         ""value"": [
@@ -24,7 +23,6 @@
 
         public PeopleServiceTest()
         {
-            // Global mock options setup
             var settings = new ODataSettings { BaseUrl = "http://test.local/" };
             this._mockOptions = Options.Create(settings);
         }
@@ -32,7 +30,6 @@
         [Fact]
         public async Task ListPeopleAsync_ReturnsCorrectData_OnSuccess()
         {
-            // ARRANGE
             var mockHandler = new MockHttpMessageHandler((request) =>
             {
                 Assert.Equal("http://test.local/People", request.RequestUri.ToString());
@@ -47,7 +44,6 @@
             // ACT
             var people = await service.ListPeopleAsync();
 
-            // ASSERT
             Assert.Equal(2, people.Count);
             Assert.Equal("scott", people[0].UserName);
         }
@@ -55,7 +51,6 @@
         [Fact]
         public async Task ListPeopleAsync_ThrowsODataServiceException_OnApiError()
         {
-            // ARRANGE
             var mockHandler = new MockHttpMessageHandler((request) =>
             {
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError)
@@ -66,20 +61,17 @@
             var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://test.local/") };
             var service = new PeopleService(httpClient, this._mockOptions);
 
-            // ACT & ASSERT
             await Assert.ThrowsAsync<ODataServiceException>(() => service.ListPeopleAsync());
         }
 
         [Fact]
         public async Task GetPersonDetailsAsync_ConstructsCorrectUrl_AndReturnsPerson()
         {
-            // ARRANGE
             var key = "Scott";
-            var expectedQuery = $"People('{key}')"; // Expected OData key format
+            var expectedQuery = $"People('{key}')";
 
             var mockHandler = new MockHttpMessageHandler((request) =>
             {
-                // ASSERTION POINT: Verify the requested URI structure
                 Assert.Equal($"http://test.local/{expectedQuery}", request.RequestUri.ToString());
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -89,10 +81,8 @@
             var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://test.local/") };
             var service = new PeopleService(httpClient, this._mockOptions);
 
-            // ACT
             var person = await service.GetPersonDetailsAsync(key);
 
-            // ASSERT
             Assert.Equal("Scott", person.FirstName);
         }
 
@@ -100,7 +90,6 @@
         [Fact]
         public async Task ListPeopleAsync_AppliesFilterCorrectly_ToRequestUrl()
         {
-            // ARRANGE
             var testFilter = "FirstName eq 'Scott'";
             var expectedQuery = $"People?$filter={Uri.EscapeDataString(testFilter)}";
 
@@ -117,7 +106,6 @@
             var httpClient = new HttpClient(mockHandler) { BaseAddress = new Uri("http://test.local/") };
             var service = new PeopleService(httpClient, this._mockOptions);
 
-            // ACT
             await service.ListPeopleAsync(testFilter);
         }
     }
